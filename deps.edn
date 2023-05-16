@@ -1,1 +1,2 @@
-{}
+{:deps    {me.pmatiello/openai-api {:mvn/version "0.3.0"}
+           me.pmatiello/tui        {:mvn/version "0.1.1"}}}
