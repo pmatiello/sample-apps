@@ -23,25 +23,39 @@
 (defn ^:private print-progress []
   (tui/println {:style [:fg-blue] :body "..."}))
 
-(defn ^:private new-message [role content]
-  {:role role :content content})
+(defn ^:private token-count [prompt]
+  (-> {:model "text-embedding-ada-002" :input prompt}
+      (openai/embedding config)
+      :usage :prompt-tokens))
+
+(defn ^:private new-message [role content tokens]
+  {:role role :content content :tokens tokens})
 
 (defn ^:private chat [messages]
   (let [messages (map #(select-keys % [:role :content]) messages)
         api-resp (openai/chat {:model "gpt-3.5-turbo" :messages messages} config)
-        resp-msg (-> api-resp :choices first :message)]
-    (new-message (:role resp-msg) (:content resp-msg))))
+        resp-msg (-> api-resp :choices first :message)
+        tokens   (-> api-resp :usage :completion-tokens)]
+    (new-message (:role resp-msg) (:content resp-msg) tokens)))
+
+(defn ^:private print-response [message]
+  (tui/println {:style [:bold :fg-purple] :body "response>"})
+  (tui/println (:content message)))
 
 (defn -main []
   (print-intro)
 
-  (loop []
+  (loop [history []]
     (let [prompt (read-prompt)]
+
       (when-not (empty? prompt)
         (print-progress)
-        (let [prompt-msg (new-message "user" prompt)
-              messages   [prompt-msg]
-              resp-msg   (chat messages)]
-          (tui/println {:style [:bold :fg-purple] :body "response>"})
-          (tui/println (:content resp-msg))
-          (recur))))))
+
+        (let [prompt-tokens (token-count prompt)
+              prompt-msg    (new-message "user" prompt prompt-tokens)
+              messages      (conj history prompt-msg)
+              resp-msg      (chat messages)
+              new-history   (conj messages resp-msg)]
+
+          (print-response resp-msg)
+          (recur new-history))))))
