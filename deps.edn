@@ -1,2 +1,4 @@
 {:deps    {me.pmatiello/openai-api {:mvn/version "0.3.0"}
-           me.pmatiello/tui        {:mvn/version "0.1.1"}}}
+           me.pmatiello/tui        {:mvn/version "0.1.1"}}
+
+ :aliases {:run {:main-opts ["-m" "me.pmatiello.tui-gpt.app"]}}}
