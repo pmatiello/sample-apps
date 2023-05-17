@@ -9,3 +9,7 @@ GPT chat in the terminal to exercise both
 ```
 % clj -M:run
 ```
+
+## Contribution Policy
+
+This software is open-source, but closed to contributions.
