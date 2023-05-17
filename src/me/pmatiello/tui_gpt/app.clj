@@ -31,6 +31,24 @@
 (defn ^:private new-message [role content tokens]
   {:role role :content content :tokens tokens})
 
+(defn ^:private compress-history [history size]
+  (->> history
+       reverse
+       vec
+       (reduce
+         (fn [acc each]
+           (conj acc
+                 (assoc each
+                   :acc-tokens (-> acc last :acc-tokens (or 0) (+ (:tokens each))))))
+         [])
+       (take-while #(-> % :acc-tokens (<= size)))
+       (map #(dissoc % :acc-tokens))
+       reverse
+       vec))
+
+(def ^:private max-tokens
+  2048)
+
 (defn ^:private chat [messages]
   (let [messages (map #(select-keys % [:role :content]) messages)
         api-resp (openai/chat {:model "gpt-3.5-turbo" :messages messages} config)
@@ -51,11 +69,12 @@
       (when-not (empty? prompt)
         (print-progress)
 
-        (let [prompt-tokens (token-count prompt)
-              prompt-msg    (new-message "user" prompt prompt-tokens)
-              messages      (conj history prompt-msg)
-              resp-msg      (chat messages)
-              new-history   (conj messages resp-msg)]
+        (let [prompt-tokens      (token-count prompt)
+              prompt-msg         (new-message "user" prompt prompt-tokens)
+              compressed-history (compress-history history (- max-tokens prompt-tokens))
+              messages           (conj compressed-history prompt-msg)
+              resp-msg           (chat messages)
+              new-history        (conj messages resp-msg)]
 
           (print-response resp-msg)
           (recur new-history))))))
