@@ -1,4 +1,5 @@
 (ns me.pmatiello.tui-gpt.app
+  (:gen-class)
   (:require [clojure.string :as str]
             [me.pmatiello.openai-api.api :as openai]
             [me.pmatiello.tui.core :as tui]))
