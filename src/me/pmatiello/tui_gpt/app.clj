@@ -3,9 +3,27 @@
             [me.pmatiello.openai-api.api :as openai]
             [me.pmatiello.tui.core :as tui]))
 
+(defn ^:private exit
+  ([]
+   (exit nil))
+  ([err]
+   (case err
+     :api-key
+     (do (tui/println "Error:" "$OPENAI_API_KEY is not defined.")
+         (exit 1))
+
+     :max-tokens
+     (do (tui/println "Error:" "invalid $OPENAI_API_MAX_TOKENS value.")
+         (exit 2))
+
+     (System/exit 0))))
+
 (def ^:private api-key
-  (or (System/getenv "OPENAI_API_KEY")
-      (throw (ex-info "Error: $OPENAI_API_KEY is not defined." {}))))
+  (or (System/getenv "OPENAI_API_KEY") (exit :api-key)))
+
+(def ^:private max-tokens
+  (try (or (some-> "OPENAI_API_MAX_TOKENS" System/getenv Integer/parseInt) 2048)
+       (catch NumberFormatException e (exit :max-tokens))))
 
 (def ^:private config
   (openai/config :api-key api-key))
@@ -45,9 +63,6 @@
        (map #(dissoc % :acc-tokens))
        reverse
        vec))
-
-(def ^:private max-tokens
-  2048)
 
 (defn ^:private chat [messages]
   (let [messages (map #(select-keys % [:role :content]) messages)
