@@ -52,17 +52,14 @@
 (defn ^:private compress-history [history size]
   (->> history
        reverse
-       vec
        (reduce
-         (fn [acc each]
-           (conj acc
-                 (assoc each
-                   :acc-tokens (-> acc last :acc-tokens (or 0) (+ (:tokens each))))))
-         [])
-       (take-while #(-> % :acc-tokens (<= size)))
-       (map #(dissoc % :acc-tokens))
-       reverse
-       vec))
+         (fn [acc {:keys [tokens] :as each}]
+           (let [sum-tokens (-> acc first :sum-tokens (or 0))
+                 each       (assoc each :sum-tokens (+ sum-tokens tokens))]
+             (conj acc each)))
+         nil)
+       (drop-while #(-> % :sum-tokens (> size)))
+       (mapv #(dissoc % :sum-tokens))))
 
 (defn ^:private chat [messages]
   (let [messages (map #(select-keys % [:role :content]) messages)
