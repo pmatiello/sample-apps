@@ -4,6 +4,9 @@ GPT chat in the terminal to exercise both
 [me.pmatiello/tui](https://github.com/pmatiello/tui) and
 [me.pmatiello/openai-api](https://github.com/pmatiello/openai-api).
 
+**Notice:** This is not an official OpenAI project nor is it affiliated with OpenAI
+in any way.
+
 ## Development
 
 Information for developing this library.
