@@ -2,32 +2,11 @@
   (:gen-class)
   (:require [clojure.string :as str]
             [me.pmatiello.openai-api.api :as openai]
-            [me.pmatiello.tui.core :as tui]))
-
-(defn ^:private exit
-  ([]
-   (exit nil))
-  ([err]
-   (case err
-     :api-key
-     (do (tui/println "Error:" "$OPENAI_API_KEY is not defined.")
-         (exit 1))
-
-     :max-tokens
-     (do (tui/println "Error:" "invalid $OPENAI_API_MAX_TOKENS value.")
-         (exit 2))
-
-     (System/exit 0))))
-
-(def ^:private api-key
-  (or (System/getenv "OPENAI_API_KEY") (exit :api-key)))
-
-(def ^:private max-tokens
-  (try (or (some-> "OPENAI_API_MAX_TOKENS" System/getenv Integer/parseInt) 2048)
-       (catch NumberFormatException e (exit :max-tokens))))
+            [me.pmatiello.tui.core :as tui]
+            [me.pmatiello.tui-gpt.params :as params]))
 
 (def ^:private config
-  (openai/config :api-key api-key))
+  (openai/config :api-key params/api-key))
 
 (defn ^:private print-intro []
   (tui/println {:style [:bold :fg-blue] :body "tui-gpt"})
@@ -76,6 +55,10 @@
 (defn -main []
   (print-intro)
 
+  (when-not params/api-key
+    (tui/println "Error:" "$OPENAI_API_KEY is not defined.")
+    (System/exit 1))
+
   (loop [history []]
     (let [prompt (read-prompt)]
 
@@ -84,7 +67,7 @@
 
         (let [prompt-tokens      (token-count prompt)
               prompt-msg         (new-message "user" prompt prompt-tokens)
-              compressed-history (compress-history history (- max-tokens prompt-tokens))
+              compressed-history (compress-history history (- params/max-tokens prompt-tokens))
               messages           (conj compressed-history prompt-msg)
               resp-msg           (chat messages)
               new-history        (conj messages resp-msg)]
