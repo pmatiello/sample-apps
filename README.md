@@ -11,6 +11,14 @@ in any way.
 
 Information for developing this library.
 
+### Running tests
+
+The following command will execute the unit tests:
+
+```
+% clj -X:test
+```
+
 ### Running
 
 The following command will execute the application:
