@@ -1,12 +1,13 @@
 (ns me.pmatiello.tui-gpt.app
   (:gen-class)
   (:require [clojure.string :as str]
-            [me.pmatiello.openai-api.api :as openai]
-            [me.pmatiello.tui.core :as tui]
-            [me.pmatiello.tui-gpt.params :as params]))
+            [me.pmatiello.tui-gpt.message :as message]
+            [me.pmatiello.tui-gpt.openai-api :as openai-api]
+            [me.pmatiello.tui-gpt.params :as params]
+            [me.pmatiello.tui.core :as tui]))
 
-(def ^:private config
-  (openai/config :api-key params/api-key))
+(def ^:private api-config
+  (openai-api/config params/api-key))
 
 (defn ^:private print-intro []
   (tui/println {:style [:bold :fg-blue] :body "tui-gpt"})
@@ -21,14 +22,6 @@
 (defn ^:private print-progress []
   (tui/println {:style [:fg-blue] :body "..."}))
 
-(defn ^:private token-count [prompt]
-  (-> {:model "text-embedding-ada-002" :input prompt}
-      (openai/embedding config)
-      :usage :prompt-tokens))
-
-(defn ^:private new-message [role content tokens]
-  {:role role :content content :tokens tokens})
-
 (defn ^:private compress-history [history size]
   (->> history
        reverse
@@ -40,13 +33,6 @@
          nil)
        (drop-while #(-> % :sum-tokens (> size)))
        (mapv #(dissoc % :sum-tokens))))
-
-(defn ^:private chat [messages]
-  (let [messages (map #(select-keys % [:role :content]) messages)
-        api-resp (openai/chat {:model "gpt-3.5-turbo" :messages messages} config)
-        resp-msg (-> api-resp :choices first :message)
-        tokens   (-> api-resp :usage :completion-tokens)]
-    (new-message (:role resp-msg) (:content resp-msg) tokens)))
 
 (defn ^:private print-response [message]
   (tui/println {:style [:bold :fg-purple] :body "response>"})
@@ -65,11 +51,11 @@
       (when-not (empty? prompt)
         (print-progress)
 
-        (let [prompt-tokens      (token-count prompt)
-              prompt-msg         (new-message "user" prompt prompt-tokens)
+        (let [prompt-tokens      (openai-api/token-count prompt api-config)
+              prompt-msg         (message/new "user" prompt prompt-tokens)
               compressed-history (compress-history history (- params/max-tokens prompt-tokens))
               messages           (conj compressed-history prompt-msg)
-              resp-msg           (chat messages)
+              resp-msg           (openai-api/chat messages api-config)
               new-history        (conj messages resp-msg)]
 
           (print-response resp-msg)
