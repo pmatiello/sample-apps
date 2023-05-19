@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [clojure.string :as str]
             [me.pmatiello.tui-gpt.message :as message]
+            [me.pmatiello.tui-gpt.history :as history]
             [me.pmatiello.tui-gpt.openai-api :as openai-api]
             [me.pmatiello.tui-gpt.params :as params]
             [me.pmatiello.tui.core :as tui]))
@@ -22,18 +23,6 @@
 (defn ^:private print-progress []
   (tui/println {:style [:fg-blue] :body "..."}))
 
-(defn ^:private compress-history [history size]
-  (->> history
-       reverse
-       (reduce
-         (fn [acc {:keys [tokens] :as each}]
-           (let [sum-tokens (-> acc first :sum-tokens (or 0))
-                 each       (assoc each :sum-tokens (+ sum-tokens tokens))]
-             (conj acc each)))
-         nil)
-       (drop-while #(-> % :sum-tokens (> size)))
-       (mapv #(dissoc % :sum-tokens))))
-
 (defn ^:private print-response [message]
   (tui/println {:style [:bold :fg-purple] :body "response>"})
   (tui/println (:content message)))
@@ -53,10 +42,11 @@
 
         (let [prompt-tokens      (openai-api/token-count prompt api-config)
               prompt-msg         (message/new "user" prompt prompt-tokens)
-              compressed-history (compress-history history (- params/max-tokens prompt-tokens))
-              messages           (conj compressed-history prompt-msg)
+              compressed-history (history/compress history
+                                                   (- params/max-tokens prompt-tokens))
+              messages           (history/append compressed-history prompt-msg)
               resp-msg           (openai-api/chat messages api-config)
-              new-history        (conj messages resp-msg)]
+              new-history        (history/append messages resp-msg)]
 
           (print-response resp-msg)
           (recur new-history))))))
