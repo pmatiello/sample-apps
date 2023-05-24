@@ -26,3 +26,7 @@
          nil)
        (drop-while #(-> % :sum-tokens (> size)))
        (mapv #(dissoc % :sum-tokens))))
+
+(s/fdef compress
+  :args (s/cat :history ::history :size integer?)
+  :ret ::history)
