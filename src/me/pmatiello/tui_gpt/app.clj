@@ -1,8 +1,8 @@
 (ns me.pmatiello.tui-gpt.app
   (:gen-class)
   (:require [clojure.string :as str]
-            [me.pmatiello.tui-gpt.message :as message]
             [me.pmatiello.tui-gpt.history :as history]
+            [me.pmatiello.tui-gpt.message :as message]
             [me.pmatiello.tui-gpt.openai-api :as openai-api]
             [me.pmatiello.tui-gpt.params :as params]
             [me.pmatiello.tui.core :as tui]))
@@ -42,8 +42,8 @@
 
         (let [prompt-tokens      (openai-api/token-count prompt api-config)
               prompt-msg         (message/new "user" prompt prompt-tokens)
-              compressed-history (history/compress history
-                                                   (- params/max-tokens prompt-tokens))
+              remaining-tokens   (- params/max-tokens prompt-tokens)
+              compressed-history (history/compress history remaining-tokens)
               messages           (history/append compressed-history prompt-msg)
               resp-msg           (openai-api/chat messages api-config)
               new-history        (history/append messages resp-msg)]
