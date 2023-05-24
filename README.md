@@ -7,6 +7,8 @@ GPT chat in the terminal to exercise both
 **Notice:** This is not an official OpenAI project nor is it affiliated with OpenAI
 in any way.
 
+![Application screenshot](misc/screenshot.png)
+
 ## Development
 
 Information for developing this library.
