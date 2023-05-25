@@ -1,4 +1,4 @@
-(ns me.pmatiello.tui-gpt.app
+(ns me.pmatiello.tui-gpt.cli-app
   (:gen-class)
   (:require [clojure.string :as str]
             [me.pmatiello.tui-gpt.history :as history]
