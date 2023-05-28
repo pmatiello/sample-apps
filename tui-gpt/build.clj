@@ -29,4 +29,4 @@
       (b/uber {:class-dir class-dir
                :uber-file jar-file
                :basis     basis
-               :main      'me.pmatiello.tui-gpt.cli-app}))
+               :main      'me.pmatiello.tui-gpt.app}))

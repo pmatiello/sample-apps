@@ -26,7 +26,7 @@ The following command will execute the unit tests:
 The following command will execute the application:
 
 ```
-% clj -M:run-cli
+% clj -M:run
 ```
 
 ### Building
