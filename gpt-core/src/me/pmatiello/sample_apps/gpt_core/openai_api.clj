@@ -1,6 +1,6 @@
-(ns me.pmatiello.tui-gpt.openai-api
+(ns me.pmatiello.sample-apps.gpt-core.openai-api
   (:require [me.pmatiello.openai-api.api :as openai]
-            [me.pmatiello.tui-gpt.message :as message]))
+            [me.pmatiello.sample-apps.gpt-core.message :as message]))
 
 (defn config
   [api-key]

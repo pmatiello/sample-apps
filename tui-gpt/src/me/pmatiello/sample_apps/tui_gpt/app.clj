@@ -1,10 +1,10 @@
-(ns me.pmatiello.tui-gpt.app
+(ns me.pmatiello.sample-apps.tui-gpt.app
   (:gen-class)
   (:require [clojure.string :as str]
-            [me.pmatiello.tui-gpt.history :as history]
-            [me.pmatiello.tui-gpt.message :as message]
-            [me.pmatiello.tui-gpt.openai-api :as openai-api]
-            [me.pmatiello.tui-gpt.params :as params]
+            [me.pmatiello.sample-apps.gpt-core.history :as history]
+            [me.pmatiello.sample-apps.gpt-core.message :as message]
+            [me.pmatiello.sample-apps.gpt-core.openai-api :as openai-api]
+            [me.pmatiello.sample-apps.gpt-core.params :as params]
             [me.pmatiello.tui.core :as tui]))
 
 (def ^:private api-config

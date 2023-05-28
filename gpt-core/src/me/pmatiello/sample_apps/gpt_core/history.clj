@@ -1,6 +1,6 @@
-(ns me.pmatiello.tui-gpt.history
+(ns me.pmatiello.sample-apps.gpt-core.history
   (:require [clojure.spec.alpha :as s]
-            [me.pmatiello.tui-gpt.message :as message]))
+            [me.pmatiello.sample-apps.gpt-core.message :as message]))
 
 (s/def ::history
   (and vector?

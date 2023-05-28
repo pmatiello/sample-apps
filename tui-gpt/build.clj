@@ -16,11 +16,7 @@
                     :lib       lib
                     :version   version
                     :basis     basis
-                    :src-dirs  src-dirs
-                    :scm       {:url                 "https://github.com/pmatiello/tui-gpt"
-                                :connection          "scm:git:git://github.com/pmatiello/tui-gpt.git"
-                                :developerConnection "scm:git:ssh://git@github.com:pmatiello/tui-gpt.git"
-                                :tag                 (str "v" version)}})
+                    :src-dirs  src-dirs})
       (b/copy-dir {:src-dirs   src-dirs
                    :target-dir class-dir})
       (b/compile-clj {:basis     basis
@@ -29,4 +25,4 @@
       (b/uber {:class-dir class-dir
                :uber-file jar-file
                :basis     basis
-               :main      'me.pmatiello.tui-gpt.app}))
+               :main      'me.pmatiello.sample-apps.tui-gpt.app}))

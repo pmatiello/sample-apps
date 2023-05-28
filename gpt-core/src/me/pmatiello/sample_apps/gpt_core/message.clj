@@ -1,4 +1,4 @@
-(ns me.pmatiello.tui-gpt.message
+(ns me.pmatiello.sample-apps.gpt-core.message
   (:require [clojure.spec.alpha :as s]))
 
 (defn new

@@ -1,4 +1,4 @@
-(ns me.pmatiello.tui-gpt.params)
+(ns me.pmatiello.sample-apps.gpt-core.params)
 
 (def api-key
   (System/getenv "OPENAI_API_KEY"))

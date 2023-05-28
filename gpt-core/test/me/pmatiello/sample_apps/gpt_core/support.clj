@@ -1,4 +1,4 @@
-(ns me.pmatiello.tui-gpt.support
+(ns me.pmatiello.sample-apps.gpt-core.support
   (:require [clojure.spec.test.alpha :as stest]))
 
 (defn with-spec-instrumentation [f]

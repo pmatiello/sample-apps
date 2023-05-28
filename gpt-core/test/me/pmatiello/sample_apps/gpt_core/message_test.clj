@@ -1,8 +1,8 @@
-(ns me.pmatiello.tui-gpt.message-test
+(ns me.pmatiello.sample-apps.gpt-core.message-test
   (:require [clojure.spec.alpha :as s]
             [clojure.test :refer :all]
-            [me.pmatiello.tui-gpt.message :as message]
-            [me.pmatiello.tui-gpt.support :as support]))
+            [me.pmatiello.sample-apps.gpt-core.message :as message]
+            [me.pmatiello.sample-apps.gpt-core.support :as support]))
 
 (use-fixtures :each support/with-spec-instrumentation)
 

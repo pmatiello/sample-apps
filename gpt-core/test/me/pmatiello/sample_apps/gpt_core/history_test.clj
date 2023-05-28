@@ -1,8 +1,8 @@
-(ns me.pmatiello.tui-gpt.history-test
+(ns me.pmatiello.sample-apps.gpt-core.history-test
   (:require [clojure.spec.alpha :as s]
             [clojure.test :refer :all]
-            [me.pmatiello.tui-gpt.history :as history]
-            [me.pmatiello.tui-gpt.support :as support]))
+            [me.pmatiello.sample-apps.gpt-core.history :as history]
+            [me.pmatiello.sample-apps.gpt-core.support :as support]))
 
 (use-fixtures :each support/with-spec-instrumentation)
 

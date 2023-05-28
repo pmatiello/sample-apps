@@ -11,15 +11,7 @@ in any way.
 
 ## Development
 
-Information for developing this library.
-
-### Running tests
-
-The following command will execute the unit tests:
-
-```
-% clj -X:test
-```
+Information for developing this project.
 
 ### Running
 
