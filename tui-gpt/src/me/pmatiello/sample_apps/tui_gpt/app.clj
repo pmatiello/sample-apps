@@ -21,11 +21,14 @@
     (str/join "\n" lines)))
 
 (defn ^:private print-progress []
-  (tui/println {:style [:fg-blue] :body "..."}))
+  (tui/println {:style [:fg-blue] :body "..."})
+  (tui/println {:style [:bold :fg-purple] :body "response>"}))
 
-(defn ^:private print-response [message]
-  (tui/println {:style [:bold :fg-purple] :body "response>"})
-  (tui/println (:content message)))
+(defn ^:private print-chunk [chunk]
+  (doseq [ch chunk]
+    (-> ch str print)
+    (when (= ch \newline)
+      (flush))))
 
 (defn -main []
   (print-intro)
@@ -45,8 +48,8 @@
               remaining-tokens   (- params/max-tokens prompt-tokens)
               compressed-history (history/compress history remaining-tokens)
               messages           (history/append compressed-history prompt-msg)
-              resp-msg           (openai-api/chat messages api-config)
+              resp-msg           (openai-api/chat-stream messages print-chunk api-config)
               new-history        (history/append messages resp-msg)]
 
-          (print-response resp-msg)
+          (println)
           (recur new-history))))))
