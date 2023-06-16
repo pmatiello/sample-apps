@@ -15,6 +15,9 @@
 (def ^:private history
   (atom []))
 
+(def ^:private current
+  (atom nil))
+
 (defn ^:private get-home
   []
   {:status  200
@@ -27,29 +30,37 @@
 
 (defn ^:private get-history
   []
-  {:status  200
-   :headers {"Content-Type" "text/html"}
-   :body    (selmer/render-file "history.html"
-                                {:history (->> (map render-content @history))})})
+  (let [current-msg  (message/new "assistant" @current -1)
+        full-history (if @current (conj @history current-msg) @history)]
+    {:status  200
+     :headers {"Content-Type" "text/html"}
+     :body    (selmer/render-file
+                "history.html"
+                {:history (map render-content full-history)})}))
 
 (defn ^:private add-to-history
   [message]
   (swap! history conj message))
 
+(defn ^:private add-to-current
+  [chunk]
+  (swap! current str chunk))
+
 (defn ^:private post-prompt
   [params]
-  (let [prompt (get params "prompt")
-        prompt-tokens (openai-api/token-count prompt api-config)
-        prompt-msg (message/new "user" prompt prompt-tokens)
-        _ (add-to-history prompt-msg)
-        remaining-tokens (- params/max-tokens prompt-tokens)
+  (let [prompt             (get params "prompt")
+        prompt-tokens      (openai-api/token-count prompt api-config)
+        prompt-msg         (message/new "user" prompt prompt-tokens)
+        _                  (add-to-history prompt-msg)
+        remaining-tokens   (- params/max-tokens prompt-tokens)
         compressed-history (history/compress @history remaining-tokens)
-        messages (history/append compressed-history prompt-msg)]
+        messages           (history/append compressed-history prompt-msg)]
 
     (future
       (-> messages
-          (openai-api/chat api-config)
-          add-to-history))
+          (openai-api/chat-stream add-to-current api-config)
+          add-to-history)
+      (reset! current nil))
 
     {:status 200
      :header {"Content-Type" "text/html"}
